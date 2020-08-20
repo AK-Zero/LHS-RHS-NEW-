@@ -11,9 +11,21 @@ import androidx.fragment.app.Fragment;
 
 public class LHSFragment extends Fragment {
 
+    private LHSCustomView lhsCustomView;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_lhs , container , false);
+        View v = inflater.inflate(R.layout.fragment_lhs , container , false);
+        lhsCustomView = v.findViewById(R.id.lhscanvas);
+        return v;
+    }
+    public void setreset(){
+        lhsCustomView.reset();
+    }
+    public void seteraser(){
+        lhsCustomView.eraser();
+    }
+    public void setchangecolor(){
+        lhsCustomView.changecolor();
     }
 }

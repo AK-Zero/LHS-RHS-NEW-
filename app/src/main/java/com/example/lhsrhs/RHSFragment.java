@@ -11,9 +11,21 @@ import androidx.fragment.app.Fragment;
 
 public class RHSFragment extends Fragment {
 
+    private RHSCustomView rhsCustomView;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_rhs , container , false);
+        View v = inflater.inflate(R.layout.fragment_rhs , container , false);
+        rhsCustomView = v.findViewById(R.id.rhscanvas);
+        return v;
+    }
+    public void setreset(){
+        rhsCustomView.reset();
+    }
+    public void seteraser(){
+        rhsCustomView.eraser();
+    }
+    public void setchangecolor(){
+        rhsCustomView.changecolor();
     }
 }

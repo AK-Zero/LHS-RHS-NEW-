@@ -11,11 +11,21 @@ import android.view.View;
 
 import androidx.annotation.Nullable;
 
-public class RHSCustomView extends View implements inter{
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
-    Paint paint;
-    Path path;
+public class RHSCustomView extends View implements inter {
+
+    List<Paint> paints = new ArrayList<>();
+    Paint paint1;
+    int paintstat = 0;
+    List<Path> patherasers = new ArrayList<>();
+    List<Path> paths = new ArrayList<>();
     static inter lhs;
+    boolean reseter = false;
+    List<Integer> index = new ArrayList<>();
+
     public RHSCustomView(Context context) {
         super(context);
         init(null);
@@ -31,42 +41,70 @@ public class RHSCustomView extends View implements inter{
         init(attrs);
     }
 
-    private void init(@Nullable AttributeSet set){
-        paint = new Paint();
-        path = new Path();
-        paint.setAntiAlias(true);
-        paint.setColor(Color.RED);
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeJoin(Paint.Join.ROUND);
-        paint.setStrokeWidth(15f);
+    private void init(@Nullable AttributeSet set) {
+        paints.add(new Paint());
+        paint1 = new Paint();
+        paths.add(new Path());
+        paints.get(0).setAntiAlias(true);
+        paints.get(0).setColor(Color.RED);
+        paints.get(0).setStyle(Paint.Style.STROKE);
+        paints.get(0).setStrokeJoin(Paint.Join.ROUND);
+        paints.get(0).setStrokeWidth(15f);
+        paint1.setAntiAlias(true);
+        paint1.setColor(getResources().getColor(R.color.xax));
+        paint1.setStyle(Paint.Style.STROKE);
+        paint1.setStrokeJoin(Paint.Join.ROUND);
+        paint1.setStrokeWidth(25f);
         LHSCustomView.setRhs(RHSCustomView.this);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawPath(path , paint);
+        for (int i = 0; i < paths.size(); i++) {
+            canvas.drawPath(paths.get(i), paints.get(i));
+            for (int j = 0; j < index.size(); j++) {
+                if (i == index.get(j)) {
+                    canvas.drawPath(patherasers.get(j), paint1);
+                }
+            }
+        }
+        if(paintstat==1) {
+            canvas.drawPath(patherasers.get(patherasers.size()-1), paint1);
+        }
+        if (reseter) {
+            canvas.drawColor(Color.WHITE);
+            reseter = false;
+        }
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        boolean value =  super.onTouchEvent(event);
+        boolean value = super.onTouchEvent(event);
 
         float x = event.getX();
         float y = event.getY();
-        switch(event.getAction()){
-            case MotionEvent.ACTION_DOWN : {
-                lhs.setmover(x,y);
-                path.moveTo(x,y);
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN: {
+                lhs.setmover(x, y);
+                if (paintstat == 0) {
+                    paths.get(paths.size()-1).moveTo(x, y);
+                } else {
+                    patherasers.get(patherasers.size()-1).moveTo(x, y);
+                }
                 return true;
             }
             case MotionEvent.ACTION_MOVE: {
-                lhs.sendcord(x,y);
-                path.lineTo(x,y);
+                lhs.sendcord(x, y);
+                if (paintstat == 0) {
+                    paths.get(paths.size()-1).lineTo(x, y);
+                } else {
+                    patherasers.get(patherasers.size() - 1).lineTo(x, y);
+                }
                 postInvalidate();
                 return value;
             }
-            case MotionEvent.ACTION_UP : {
+            case MotionEvent.ACTION_UP: {
                 return value;
             }
         }
@@ -79,12 +117,79 @@ public class RHSCustomView extends View implements inter{
 
     @Override
     public void sendcord(float x, float y) {
-        path.lineTo(x,y);
+        if (paintstat == 0) {
+            paths.get(paths.size()-1).lineTo(x, y);
+        } else {
+            patherasers.get(patherasers.size() - 1).lineTo(x, y);
+        }
         postInvalidate();
     }
 
     @Override
     public void setmover(float x, float y) {
-        path.moveTo(x,y);
+        if (paintstat == 0) {
+            paths.get(paths.size()-1).moveTo(x, y);
+        } else {
+            patherasers.get(patherasers.size() - 1).moveTo(x, y);
+        }
+    }
+
+    public void reset() {
+        reseter = true;
+        paths.clear();
+        patherasers.clear();
+        paints.clear();
+        patherasers.add(new Path());
+        paths.add(new Path());
+        paints.add(new Paint());
+        paints.get(0).setAntiAlias(true);
+        paints.get(0).setColor(Color.RED);
+        paints.get(0).setStyle(Paint.Style.STROKE);
+        paints.get(0).setStrokeJoin(Paint.Join.ROUND);
+        paints.get(0).setStrokeWidth(15f);
+        postInvalidate();
+    }
+
+    public void eraser() {
+        if (paintstat == 0) {
+            paintstat = 1;
+            index.add(paths.size()-1);
+            patherasers.add(new Path());
+        } else {
+            paths.add(new Path());
+            paints.add(paints.get(paints.size()-1));
+            paintstat = 0;
+        }
+    }
+
+    public void changecolor() {
+        Calendar C = Calendar.getInstance();
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeJoin(Paint.Join.ROUND);
+        paint.setStrokeWidth(15f);
+
+        if (C.getTimeInMillis() % 9 == 0) {
+            paint.setColor(Color.RED);
+        } else if (C.getTimeInMillis() % 9 == 1) {
+            paint.setColor(Color.BLACK);
+        } else if (C.getTimeInMillis() % 9 == 2) {
+            paint.setColor(Color.BLUE);
+        } else if (C.getTimeInMillis() % 9 == 3) {
+            paint.setColor(Color.MAGENTA);
+        } else if (C.getTimeInMillis() % 9 == 4) {
+            paint.setColor(Color.YELLOW);
+        } else if (C.getTimeInMillis() % 9 == 5) {
+            paint.setColor(Color.DKGRAY);
+        } else if (C.getTimeInMillis() % 9 == 6) {
+            paint.setColor(Color.CYAN);
+        } else if (C.getTimeInMillis() % 9 == 7) {
+            paint.setColor(Color.GREEN);
+        } else if (C.getTimeInMillis() % 9 == 8) {
+            paint.setColor(getResources().getColor(R.color.colorPrimaryDark));
+        }
+        paints.add(paint);
+        paths.add(new Path());
     }
 }
